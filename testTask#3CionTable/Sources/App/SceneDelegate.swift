@@ -13,10 +13,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        window = UIWindow(windowScene: windowScene)
+        let navigationController = UINavigationController()
+        let moduleBuilder = ModuleBuilder()
+        let router = Router(navigationController: navigationController, moduleBuilder: moduleBuilder)
+        router.initialController()
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+    }
+    
+    func changeRootViewController(viewController: UIViewController, animated: Bool = true, animationOptions: UIView.AnimationOptions) {
+        guard let window = window else { return }
+            
+        window.rootViewController = viewController
+        let options: UIView.AnimationOptions = [animationOptions]
+            
+        UIView.transition(with: window,
+                          duration: 0.5,
+                          options: options,
+                          animations: nil,
+                          completion: nil)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -47,6 +65,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-
 }
 
+extension SceneDelegate {
+    static var shared: SceneDelegate {
+        return (UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate)
+    }
+}
